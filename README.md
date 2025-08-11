@@ -15,9 +15,13 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
+  - [Example Workflow](#example-workflow)
 - [Command-Line Options](#command-line-options)
+  - [Patch Review Options](#patch-review-options)
+  - [Ai Review Options](#ai-review-options)
+  - [Logging Options](#logging-options)
 - [Development](#development)
-- [Contact](#getting-in-contact)
+- [Getting in Contact](#getting-in-contact)
 - [License](#license)
 
 ---
