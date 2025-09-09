@@ -3,11 +3,9 @@ FROM patchwise-base:latest
 
 USER root
 
+# AiCodeReview needs clangd for LSP functionality
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    codespell \
+    clangd \
     && rm -rf /var/lib/apt/lists/*
-
-RUN pip3 install ply
-RUN pip3 install GitPython
 
 USER patchwise
