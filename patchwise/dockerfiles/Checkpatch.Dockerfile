@@ -3,11 +3,8 @@ FROM patchwise-base:latest
 
 USER root
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    codespell \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN pip3 install ply
 RUN pip3 install GitPython
+RUN pip3 install codespell
 
 USER patchwise
