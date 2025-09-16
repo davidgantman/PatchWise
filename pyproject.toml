@@ -6,8 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "patchwise"
 version = "0.2.1"
 description = "A tool for reviewing kernel patches"
-authors = [{ name = "David Gantman", email = "dgantman@qti.qualcomm.com" }]
+authors = [{ name = "David Gantman", email = "david.gantman@oss.qualcomm.com" }]
 requires-python = ">=3.10"
+readme = "README.md"
 dependencies = [
     "Sphinx>=8.1.3",
     "litellm>=1.74",
@@ -32,3 +33,6 @@ include = ["patchwise*"]
 
 [tool.setuptools.package-data]
 patchwise = ["patches/**", "default_config.yaml", "dockerfiles/*"]
+
+[project.urls]
+Repository = "https://github.com/qualcomm/PatchWise"
