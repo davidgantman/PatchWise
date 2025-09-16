@@ -1,9 +1,8 @@
 # PatchWise
 
-<!-- [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE.txt) -->
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg?logo=python)](https://www.python.org/downloads/)
-[![Docker](https://img.shields.io/badge/docker-20.10%2B-blue.svg?logo=docker)](https://docs.docker.com/engine/install/)
-[![Discord](https://img.shields.io/discord/1095352552096268288?logo=discord&color=%235865F2)](https://discord.com/invite/qualcommdevelopernetwork)
+[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&color=%232496ED&logoColor=white)](https://docs.docker.com/engine/install/)
+[![Discord](https://img.shields.io/discord/1095352552096268288?style=social&logo=discord&label=Discord)](https://discord.com/invite/qualcommdevelopernetwork)
 
 > **PatchWise** automates patch review and static analysis for the Linux kernel, streamlining upstream contributions and ensuring code quality.
 
