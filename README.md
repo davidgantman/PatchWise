@@ -1,8 +1,9 @@
 # PatchWise
 
-<!-- [![License](https://img.shields.io/badge/license-XXX-blue.svg)](LICENSE) -->
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-<!-- [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#) -->
+<!-- [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE.txt) -->
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg?logo=python)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-20.10%2B-blue.svg?logo=docker)](https://docs.docker.com/engine/install/)
+[![Discord](https://img.shields.io/discord/1095352552096268288?logo=discord&color=%235865F2)](https://discord.com/invite/qualcommdevelopernetwork)
 
 > **PatchWise** automates patch review and static analysis for the Linux kernel, streamlining upstream contributions and ensuring code quality.
 
@@ -24,12 +25,14 @@
 
 ## Features
 
-- **Automated Patch Review**: Runs static analysis and style checks on kernel patches.
-- **Integration with Mailing Lists**: Processes patches sent via email and responds automatically.
-- **Flexible Review Selection**: Choose which review checks to run.
-- **Rich Logging**: Colorized and file-based logging for easy debugging.
-- **LLM Integration**: Uses Artificial Intelligence for commit message analysis and suggestions.
-- **AI Code Review**: Leverages artificial intelligence to provide insights on code quality and potential issues. Integrated with Language Server Protocol (LSP) for context-aware code review. Support for multiple LLMs and providers, including OpenAI.
+- **Automated Static Analysis**: Comprehensive suite of kernel-specific analysis tools (checkpatch, sparse, coccicheck, dt_check, dtbs_check, *more to come in future releases*)
+- **AI-Powered Code Review**: Advanced code analysis using Language Server Protocol (LSP) with clangd for context-aware insights
+- **Multi-model Compatibility**: Support for multiple LLMs and providers, such as OpenAI, for commit message analysis and code review
+- **Reproducible Environments**: Docker-based isolation ensures consistent results across different systems
+- **Containerized Patch Reviews**: Each review tool runs in its own isolated Docker container, preventing dependency conflicts
+- **Flexible Review Selection**: Choose which review checks to run based on your needs
+- **Integration with Mailing Lists** [*coming soon*]: Processes patches sent via email and responds automatically
+- **Shared Build Artifacts** [*WIP*]: Efficient volume management for kernel compilation and analysis data
 
 ---
 
@@ -37,10 +40,14 @@
 
 ### Prerequisites
 
-- Python 3.10 or newer
-- Access to a Linux kernel git repository
+- **Docker**: [Docker Engine 20.10+](https://docs.docker.com/engine/install/) with BuildKit support
+- **Python**: [Python 3.10](https://www.python.org/downloads/) or newer
 
 ### Installation
+
+1. **Install Docker** (if not already installed):
+
+    Follow the steps for your OS from the [official Docker installation guide](https://docs.docker.com/engine/install/) or contact your system administrator.
 
 1. **Create and activate a virtual environment:**
 
@@ -55,9 +62,7 @@
    pip install patchwise
    ```
 
-1. **Set up your API key:**
-
-   Obtain your API key from your provider and set it as an environment variable:
+1. **Set up your API key** (for AI reviews):
 
    ```bash
    export OPENAI_API_KEY=<your-api-key>
@@ -65,69 +70,76 @@
 
    Add this line to your shell profile (e.g., `~/.bashrc` or `~/.zshrc`) for persistence.
 
-1. **Run help message:**
+1. **Verify installation:**
 
    ```bash
    patchwise --help
    ```
+
+---
 
 ## Usage
 
-1. **Run PatchWise:**
+### Basic Usage
 
-   Run PatchWise in the root of your kernel workspace:
+Run PatchWise in the root of your kernel workspace:
 
-   ```bash
-   patchwise
-   ```
+```bash
+# Review the HEAD commit with all available tools
+patchwise
 
-   By default, PatchWise will review the `HEAD` commit. Use the `--commits` flag to review a specific commit:
+# Review a specific commit
+patchwise --commits <commit-sha>
 
-   ```bash
-   patchwise --commits <commit-sha>
-   ```
+# Review a range of commits
+patchwise --commits <start-sha>..<end-sha>
 
-   To run only short reviews, use:
+# Run specific review tools
+patchwise --reviews checkpatch sparse dt_check
+```
 
-   ```bash
-   patchwise --short-reviews
-   ```
+### Advanced Usage
 
-   To run specific reviews, use the `--reviews` flag:
+```bash
+# AI-only reviews with specific model
+patchwise --reviews ai_code_review llm_commit_audit --model openai/gpt-4
 
-   ```bash
-   patchwise --reviews checkpatch dt_checker
-   ```
+# Custom repository path
+patchwise --repo-path /path/to/kernel --commits HEAD~5..HEAD
 
-   To see available reviews and other options, run:
-
-   ```bash
-   patchwise --help
-   ```
+# Verbose logging for troubleshooting
+patchwise --log-level DEBUG
+```
 
 ### Example Workflow
 
 ```bash
-### Create and activate a virtual environment
+# Set up environment
 python3.10 -m venv .venv
-# Required every time you start a new shell session
-source .venv/bin/activate 
-### Install PatchWise
+source .venv/bin/activate
 pip install patchwise
 
-# Required every time you start a new shell session
-# unless you've added it to your shell profile (e.g., ~/.bashrc or ~/.zshrc)
-# You can find your API key from your provider
+# Configure AI API key (if using AI reviews)
 export OPENAI_API_KEY=<your-api-key>
 
-### Run PatchWise in your kernel workspace that has the patch you want to review already applied
+# Navigate to your kernel workspace
 cd linux-next
+
+# Apply your patch if not already applied
+git am < your-patch.patch
+
+# Run comprehensive review
 patchwise
+
+# Or run targeted analysis
+patchwise --reviews checkpatch ai_code_review --commits HEAD
 ```
 
 ---
 
 ## Command-Line Options
+
+### General Options
 
 - `-h`, `--help`: Show help message and exit
 
@@ -135,20 +147,20 @@ patchwise
 
 - `--commits`: Space separated list of commit SHAs/refs, or a single commit range in start..end format. (default: [`HEAD`])
 - `--repo-path`: Path to the kernel workspace root. Uses your current directory if not specified. (default: `$PWD`)
-- `--reviews`: Space-separated list of reviews to run. (default: all available reviews)
-- `--short-reviews`: Run only short reviews. Overrides `--reviews`.
-- `--install`: Install missing dependencies for the specified reviews. This will not run any reviews, only install dependencies.
+- `--reviews`: Space-separated list of reviews to run. Available: `checkpatch`, `sparse`, `coccicheck`, `dt_check`, `dtbs_check`, `ai_code_review`, `llm_commit_audit` (default: all available reviews)
 
-### Ai Review Options
+### AI Review Options
 
-- `--model`: Specify the AI model to use for code review. (default: `openai/Pro`).
-- `--provider`: The base URL for the AI model API. (default: `https://api.openai.com/v1`)
-- `--api-key`: The API key for the AI model API. If not provided, it will be read from the `OPENAI_API_KEY` environment variable.
+- `--model`: Specify the AI model to use for code review (default: `openai/Pro`)
+- `--provider`: The base URL for the AI model API (default: `https://api.openai.com/v1`)
+- `--api-key`: The API key for the AI model API. If not provided, it will be read from the `OPENAI_API_KEY` environment variable or the environment variable corresponding to your selected provider. For additional information on how LiteLLM handles API keys, see [LiteLLM documentation](https://docs.litellm.ai/docs/set_keys#setting-api-keys).
 
 ### Logging Options
 
-- `--log-level`: Set the logging level. (default: `INFO`)
+- `--log-level`: Set the logging level. Options: `DEBUG`, `INFO`, `WARNING`, `ERROR` (default: `INFO`)
 - `--log-file`: Path to the log file (default: `<package_path>/sandbox/patchwise.log`)
+
+---
 
 ## Development
 
